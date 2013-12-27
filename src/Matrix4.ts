@@ -32,132 +32,140 @@ class Matrix4 {
     }
 
     public copyTo(other : Matrix4) : void {
-        other.set(0,  this.array[0]);
-        other.set(1,  this.array[1]);
-        other.set(2,  this.array[2]);
-        other.set(3,  this.array[3]);
-        other.set(4,  this.array[4]);
-        other.set(5,  this.array[5]);
-        other.set(6,  this.array[6]);
-        other.set(7,  this.array[7]);
-        other.set(8,  this.array[8]);
-        other.set(9,  this.array[9]);
-        other.set(10, this.array[10]);
-        other.set(11, this.array[11]);
-        other.set(12, this.array[12]);
-        other.set(13, this.array[13]);
-        other.set(14, this.array[14]);
-        other.set(15, this.array[15]);
+        var a = this.array;
+
+        other.set(0,  a[0]);
+        other.set(1,  a[1]);
+        other.set(2,  a[2]);
+        other.set(3,  a[3]);
+        other.set(4,  a[4]);
+        other.set(5,  a[5]);
+        other.set(6,  a[6]);
+        other.set(7,  a[7]);
+        other.set(8,  a[8]);
+        other.set(9,  a[9]);
+        other.set(10, a[10]);
+        other.set(11, a[11]);
+        other.set(12, a[12]);
+        other.set(13, a[13]);
+        other.set(14, a[14]);
+        other.set(15, a[15]);
     }
 
     public identity() : void {
-        this.array[0]  = 1;
-        this.array[1]  = 0;
-        this.array[2]  = 0;
-        this.array[3]  = 0;
-        this.array[4]  = 0;
-        this.array[5]  = 1;
-        this.array[6]  = 0;
-        this.array[7]  = 0;
-        this.array[8]  = 0;
-        this.array[9]  = 0;
-        this.array[10] = 1;
-        this.array[11] = 0;
-        this.array[12] = 0;
-        this.array[13] = 0;
-        this.array[14] = 0;
-        this.array[15] = 1;
+        var a = this.array;
+
+        a[0]  = 1;
+        a[1]  = 0;
+        a[2]  = 0;
+        a[3]  = 0;
+        a[4]  = 0;
+        a[5]  = 1;
+        a[6]  = 0;
+        a[7]  = 0;
+        a[8]  = 0;
+        a[9]  = 0;
+        a[10] = 1;
+        a[11] = 0;
+        a[12] = 0;
+        a[13] = 0;
+        a[14] = 0;
+        a[15] = 1;
     }
 
     public transpose() : void {
-        var a01 = this.array[1],
-            a02 = this.array[2],
-            a03 = this.array[3],
-            a12 = this.array[6],
-            a13 = this.array[7],
-            a23 = this.array[11];
+        var a   = this.array,
+            a01 = a[1],
+            a02 = a[2],
+            a03 = a[3],
+            a12 = a[6],
+            a13 = a[7],
+            a23 = a[11];
 
-        this.array[1]  = this.array[4];
-        this.array[2]  = this.array[8];
-        this.array[3]  = this.array[12];
-        this.array[4]  = a01;
-        this.array[6]  = this.array[9];
-        this.array[7]  = this.array[13];
-        this.array[8]  = a02;
-        this.array[9]  = a12;
-        this.array[11] = this.array[14];
-        this.array[12] = a03;
-        this.array[13] = a13;
-        this.array[14] = a23;
+        a[1]  = a[4];
+        a[2]  = a[8];
+        a[3]  = a[12];
+        a[4]  = a01;
+        a[6]  = a[9];
+        a[7]  = a[13];
+        a[8]  = a02;
+        a[9]  = a12;
+        a[11] = a[14];
+        a[12] = a03;
+        a[13] = a13;
+        a[14] = a23;
     }
 
     public translate(v : Vector3) : void {
-        var x = v.x,
+        var a = this.array,
+            x = v.x,
             y = v.y,
             z = v.z,
-            a00 = this.array[0],
-            a01 = this.array[1],
-            a02 = this.array[2],
-            a03 = this.array[3],
-            a10 = this.array[4],
-            a11 = this.array[5],
-            a12 = this.array[6],
-            a13 = this.array[7],
-            a20 = this.array[8],
-            a21 = this.array[9],
-            a22 = this.array[10],
-            a23 = this.array[11],
-            a30 = this.array[12],
-            a31 = this.array[13],
-            a32 = this.array[14],
-            a33 = this.array[15];
+            a00 = a[0],
+            a01 = a[1],
+            a02 = a[2],
+            a03 = a[3],
+            a10 = a[4],
+            a11 = a[5],
+            a12 = a[6],
+            a13 = a[7],
+            a20 = a[8],
+            a21 = a[9],
+            a22 = a[10],
+            a23 = a[11],
+            a30 = a[12],
+            a31 = a[13],
+            a32 = a[14],
+            a33 = a[15];
 
-        this.array[0] = a00 + a03 * x;
-        this.array[1] = a01 + a03 * y;
-        this.array[2] = a02 + a03 * z;
-        this.array[3] = a03;
+        a[0] = a00 + a03 * x;
+        a[1] = a01 + a03 * y;
+        a[2] = a02 + a03 * z;
+        a[3] = a03;
 
-        this.array[4] = a10 + a13 * x;
-        this.array[5] = a11 + a13 * y;
-        this.array[6] = a12 + a13 * z;
-        this.array[7] = a13;
+        a[4] = a10 + a13 * x;
+        a[5] = a11 + a13 * y;
+        a[6] = a12 + a13 * z;
+        a[7] = a13;
 
-        this.array[8]  = a20 + a23 * x;
-        this.array[9]  = a21 + a23 * y;
-        this.array[10] = a22 + a23 * z;
-        this.array[11] = a23;
+        a[8]  = a20 + a23 * x;
+        a[9]  = a21 + a23 * y;
+        a[10] = a22 + a23 * z;
+        a[11] = a23;
 
-        this.array[12] = a30 + a33 * x;
-        this.array[13] = a31 + a33 * y;
-        this.array[14] = a32 + a33 * z;
-        this.array[15] = a33;
+        a[12] = a30 + a33 * x;
+        a[13] = a31 + a33 * y;
+        a[14] = a32 + a33 * z;
+        a[15] = a33;
     }
 
     public scale(v : Vector3) : void {
-        var x = v.x,
+        var a = this.array,
+            x = v.x,
             y = v.y,
             z = v.z;
 
-        this.array[0]  = this.array[0]  * x;
-        this.array[1]  = this.array[1]  * x;
-        this.array[2]  = this.array[2]  * x;
-        this.array[3]  = this.array[3]  * x;
-        this.array[4]  = this.array[4]  * y;
-        this.array[5]  = this.array[5]  * y;
-        this.array[6]  = this.array[6]  * y;
-        this.array[7]  = this.array[7]  * y;
-        this.array[8]  = this.array[8]  * z;
-        this.array[9]  = this.array[9]  * z;
-        this.array[10] = this.array[10] * z;
-        this.array[11] = this.array[11] * z;
-        this.array[12] = this.array[12];
-        this.array[13] = this.array[13];
-        this.array[14] = this.array[14];
-        this.array[15] = this.array[15];
+        a[0]  = a[0]  * x;
+        a[1]  = a[1]  * x;
+        a[2]  = a[2]  * x;
+        a[3]  = a[3]  * x;
+        a[4]  = a[4]  * y;
+        a[5]  = a[5]  * y;
+        a[6]  = a[6]  * y;
+        a[7]  = a[7]  * y;
+        a[8]  = a[8]  * z;
+        a[9]  = a[9]  * z;
+        a[10] = a[10] * z;
+        a[11] = a[11] * z;
+        a[12] = a[12];
+        a[13] = a[13];
+        a[14] = a[14];
+        a[15] = a[15];
     }
 
     public rotate(angle : number, axis : Vector3) : void {
-        var x = axis.x,
+        var a = this.array,
+            x = axis.x,
             y = axis.y,
             z = axis.z,
             len = Math.sqrt(x * x + y * y + z * z),
@@ -172,18 +180,18 @@ class Matrix4 {
         y *= len;
         z *= len;
 
-        var a00 = this.array[0],
-            a01 = this.array[1],
-            a02 = this.array[2],
-            a03 = this.array[3],
-            a10 = this.array[4],
-            a11 = this.array[5],
-            a12 = this.array[6],
-            a13 = this.array[7],
-            a20 = this.array[8],
-            a21 = this.array[9],
-            a22 = this.array[10],
-            a23 = this.array[11];
+        var a00 = a[0],
+            a01 = a[1],
+            a02 = a[2],
+            a03 = a[3],
+            a10 = a[4],
+            a11 = a[5],
+            a12 = a[6],
+            a13 = a[7],
+            a20 = a[8],
+            a21 = a[9],
+            a22 = a[10],
+            a23 = a[11];
 
         var b00 = x * x * t + c,
             b01 = y * x * t + z * s,
@@ -195,18 +203,18 @@ class Matrix4 {
             b21 = y * z * t - x * s,
             b22 = z * z * t + c;
 
-        this.array[0]  = a00 * b00 + a10 * b01 + a20 * b02;
-        this.array[1]  = a01 * b00 + a11 * b01 + a21 * b02;
-        this.array[2]  = a02 * b00 + a12 * b01 + a22 * b02;
-        this.array[3]  = a03 * b00 + a13 * b01 + a23 * b02;
-        this.array[4]  = a00 * b10 + a10 * b11 + a20 * b12;
-        this.array[5]  = a01 * b10 + a11 * b11 + a21 * b12;
-        this.array[6]  = a02 * b10 + a12 * b11 + a22 * b12;
-        this.array[7]  = a03 * b10 + a13 * b11 + a23 * b12;
-        this.array[8]  = a00 * b20 + a10 * b21 + a20 * b22;
-        this.array[9]  = a01 * b20 + a11 * b21 + a21 * b22;
-        this.array[10] = a02 * b20 + a12 * b21 + a22 * b22;
-        this.array[11] = a03 * b20 + a13 * b21 + a23 * b22;
+        a[0]  = a00 * b00 + a10 * b01 + a20 * b02;
+        a[1]  = a01 * b00 + a11 * b01 + a21 * b02;
+        a[2]  = a02 * b00 + a12 * b01 + a22 * b02;
+        a[3]  = a03 * b00 + a13 * b01 + a23 * b02;
+        a[4]  = a00 * b10 + a10 * b11 + a20 * b12;
+        a[5]  = a01 * b10 + a11 * b11 + a21 * b12;
+        a[6]  = a02 * b10 + a12 * b11 + a22 * b12;
+        a[7]  = a03 * b10 + a13 * b11 + a23 * b12;
+        a[8]  = a00 * b20 + a10 * b21 + a20 * b22;
+        a[9]  = a01 * b20 + a11 * b21 + a21 * b22;
+        a[10] = a02 * b20 + a12 * b21 + a22 * b22;
+        a[11] = a03 * b20 + a13 * b21 + a23 * b22;
     }
 
     public rotateX(angle : number) : void {
@@ -222,25 +230,26 @@ class Matrix4 {
     }
 
     public perspective(fov : number, aspect : number, near : number, far : number) {
-        var f = 1.0 / Math.tan(fov / 2),
+        var a = this.array,
+            f = 1.0 / Math.tan(fov / 2),
             nf = 1 / (near - far);
 
-        this.array[0]  = f / aspect;
-        this.array[1]  = 0;
-        this.array[2]  = 0;
-        this.array[3]  = 0;
-        this.array[4]  = 0;
-        this.array[5]  = f;
-        this.array[6]  = 0;
-        this.array[7]  = 0;
-        this.array[8]  = 0;
-        this.array[9]  = 0;
-        this.array[10] = (far + near) * nf;
-        this.array[11] = -1;
-        this.array[12] = 0;
-        this.array[13] = 0;
-        this.array[14] = (2 * far * near) * nf;
-        this.array[15] = 0;
+        a[0]  = f / aspect;
+        a[1]  = 0;
+        a[2]  = 0;
+        a[3]  = 0;
+        a[4]  = 0;
+        a[5]  = f;
+        a[6]  = 0;
+        a[7]  = 0;
+        a[8]  = 0;
+        a[9]  = 0;
+        a[10] = (far + near) * nf;
+        a[11] = -1;
+        a[12] = 0;
+        a[13] = 0;
+        a[14] = (2 * far * near) * nf;
+        a[15] = 0;
     }
 
 
