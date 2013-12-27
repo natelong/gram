@@ -80,7 +80,7 @@ class Matrix3 {
             // Calculate the determinant
             det = a00 * b01 + a01 * b11 + a02 * b21;
 
-        if (!det) return;
+        if (!det) return null;
         det = 1.0 / det;
 
         a[0] = b01 * det;
