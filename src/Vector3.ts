@@ -33,6 +33,16 @@ class Vector3 {
         return this.x * other.x + this.y * other.y + this.z * other.z;
     }
 
+    public cross(other : Vector3) : Vector3 {
+        var out = new Vector3();
+
+        out.x = this.y * other.z - this.z * other.y;
+        out.y = this.z * other.x - this.x * other.z;
+        out.z = this.x * other.y - this.y * other.x;
+
+        return out;
+    }
+
     public static X   = new Vector3(1, 0, 0);
     public static Y   = new Vector3(0, 1, 0);
     public static Z   = new Vector3(0, 0, 1);
