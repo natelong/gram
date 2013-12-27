@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebGL Test Page</title>
+</head>
+<body>
+    <canvas id="stage" width="640" height="480"></canvas>
+
+    <script src="require.js"></script>
+    <script>
+        require.config({
+            paths: {
+                "gram": "../dist"
+            }
+        });
+
+        require(["gram/base"], function(gram) {
+            console.log("gram initialized");
+        });
+    </script>
+</body>
+</html>
