@@ -3,6 +3,7 @@ import Matrix3 = require("./Matrix3");
 import Matrix4 = require("./Matrix4");
 import Vector3 = require("./Vector3");
 import Shader  = require("./Shader");
+import Utils   = require("./Utils");
 
 export = Graphics;
 
@@ -11,6 +12,7 @@ class Graphics {
     public viewportWidth  : number;
     public viewportHeight : number;
     public shaderProgram  : WebGLProgram;
+    public perspective    : Matrix4;
 
     // TODO: Replace these with something more sane
     public positionAttribute : number;
@@ -43,6 +45,13 @@ class Graphics {
         } else {
             console.error("Couldn't initialize WebGL");
         }
+
+        this.perspective = new Matrix4().perspective(
+            Utils.degToRad(45),
+            this.viewportWidth / this.viewportHeight,
+            0.1,
+            100
+        );
     }
 
     public clear() {
@@ -149,11 +158,22 @@ class Graphics {
         var gl = this.gl;
 
         gl.uniform3f(this.ambientColorUniform, 0.2, 0.2, 0.2);
-        gl.uniform3fv(this.lightDirectionUniform, new Vector3(0.25, 0.25, 1).getArray());
+        gl.uniform3fv(this.lightDirectionUniform, new Vector3(0.25, 0.25, 1).getFloat32Array());
         gl.uniform3f(this.lightColorUniform, 0.8, 0.8, 0.8);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
         this.setMatrixUniforms(perspective, modelView);
         gl.drawElements(mode, indexCount, gl.UNSIGNED_SHORT, 0);
+    }
+
+    public drawArrays(count : number, modelView : Matrix4, mode : number) : void {
+        var gl = this.gl;
+
+        gl.uniform3f(this.ambientColorUniform, 0.2, 0.2, 0.2);
+        gl.uniform3fv(this.lightDirectionUniform, new Vector3(0.25, 0.25, 1).getFloat32Array());
+        gl.uniform3f(this.lightColorUniform, 0.8, 0.8, 0.8);
+
+        this.setMatrixUniforms(this.perspective, modelView);
+        gl.drawArrays(mode, 0, count);
     }
 }

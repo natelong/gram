@@ -2,49 +2,110 @@
 import Matrix4  = require("./Matrix4");
 import Vector3  = require("./Vector3");
 import Graphics = require("./Graphics");
+import Color    = require("./Color");
 
 export = Mesh;
 
 class Mesh {
-    private modelView    : Matrix4;
+    public translation : Matrix4;
+    public rotation    : Matrix4;
+    public scaling     : Matrix4;
 
+    private identity     : Matrix4;
     private vertexBuffer : WebGLBuffer;
-    private indexBuffer  : WebGLBuffer;
-    private indexCount   : number;
+    private vertexCount  : number;
+    private graphics     : Graphics;
 
     private stride         = 40;
     private positionOffset = 0;
     private colorOffset    = 12;
     private normalOffset   = 28;
 
-    constructor(graphics : Graphics, vertices : Array<number>, indices : Array<number>) {
+    constructor(graphics : Graphics, vertices : Array<number>, color : Color) {
         var gl = graphics.gl;
 
-        this.modelView = new Matrix4();
-        this.modelView.identity();
+        this.graphics = graphics;
 
+        this.translation = new Matrix4().identity();
+        this.rotation    = new Matrix4().identity();
+        this.scaling     = new Matrix4().identity();
+        this.identity    = new Matrix4().identity();
+
+        var newVertices = <Array<number>>[];
+
+        for(var i = 0; i < vertices.length; i += 9) {
+            var v    = vertices,
+                a    = new Vector3(v[i], v[i+1], v[i+2]),
+                b    = new Vector3(v[i+3], v[i+4], v[i+5]),
+                c    = new Vector3(v[i+6], v[i+7], v[i+8]),
+                d1   = new Vector3(b.x - a.x, b.y - a.y, b.z - a.z),
+                d2   = new Vector3(c.x - a.x, c.y - a.y, c.z - a.z),
+                norm = d1.cross(d2).normalize();
+
+            newVertices = newVertices.concat(a.getArray());
+            newVertices = newVertices.concat(color.getArray());
+            newVertices = newVertices.concat(norm.getArray());
+
+            newVertices = newVertices.concat(b.getArray());
+            newVertices = newVertices.concat(color.getArray());
+            newVertices = newVertices.concat(norm.getArray());
+
+            newVertices = newVertices.concat(c.getArray());
+            newVertices = newVertices.concat(color.getArray());
+            newVertices = newVertices.concat(norm.getArray());
+        }
+
+        this.vertexCount = newVertices.length / 10;
         this.vertexBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-
-        this.indexCount = indices.length;
-        this.indexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(newVertices), gl.STATIC_DRAW);
     }
 
-    public draw(graphics : Graphics, perspective : Matrix4) : void {
+    public draw() : void {
+        var graphics = this.graphics;
+
+        this.identity.identity();
+
         graphics.setPositionBuffer(this.vertexBuffer, this.stride, this.positionOffset);
         graphics.setNormalBuffer(this.vertexBuffer, this.stride, this.normalOffset);
         graphics.setColorBuffer(this.vertexBuffer, this.stride, this.colorOffset);
-        graphics.drawIndices(this.indexBuffer, this.indexCount, perspective, this.modelView, graphics.gl.TRIANGLES);
+        graphics.drawArrays(this.vertexCount,
+                            this.identity.multiply(this.translation)
+                                         .multiply(this.rotation)
+                                         .multiply(this.scaling),
+                            graphics.gl.TRIANGLES);
     }
 
     public rotate(angle : number, axis : Vector3) : void {
-        this.modelView.rotate(angle, axis);
+        this.rotation.rotate(angle, axis);
     }
 
-    public translate(position : Vector3) : void {
-        this.modelView.translate(position);
+    public translate(amount : Vector3) : void {
+        this.translation.translate(amount);
+    }
+
+    public scale(amount : Vector3) : void {
+        this.scaling.scale(amount);
+    }
+
+    public static fromMap(map : Array<number>) : Array<number> {
+        var out  = <Array<number>>[],
+            size = Math.sqrt(map.length),
+            o    = size / 2;
+
+        for(var y = 0; y < size - 1; y++) {
+            for(var x = 0; x < size - 1; x++) {
+                out = out.concat([
+                    x-o,   y-o,   map[y * size + x],
+                    x+1-o, y-o,   map[y * size + x + 1],
+                    x-o,   y+1-o, map[(y+1) * size + x],
+                    x+1-o, y-o,   map[y * size + x + 1],
+                    x+1-o, y+1-o, map[(y+1) * size + x + 1],
+                    x-o,   y+1-o, map[(y+1) * size + x]
+                ]);
+            }
+        }
+
+        return out;
     }
 }

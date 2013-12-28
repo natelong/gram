@@ -11,11 +11,15 @@ class Vector3 {
         this.z = z || 0;
     }
 
-    public getArray() : Float32Array {
+    public getArray() : Array<number> {
+        return [this.x, this.y, this.z];
+    }
+
+    public getFloat32Array() : Float32Array {
         return new Float32Array([this.x, this.y, this.z]);
     }
 
-    public normalize() {
+    public normalize() : Vector3 {
         var x = this.x,
             y = this.y,
             z = this.z,
@@ -27,6 +31,8 @@ class Vector3 {
             this.y = y * len;
             this.z = z * len;
         }
+
+        return this;
     }
 
     public dot(other : Vector3) : number {
