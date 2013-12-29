@@ -49,8 +49,9 @@ class Vector3 {
         return out;
     }
 
-    public static X   = new Vector3(1, 0, 0);
-    public static Y   = new Vector3(0, 1, 0);
-    public static Z   = new Vector3(0, 0, 1);
-    public static One = new Vector3(1, 1, 1);
+    public static X    = new Vector3(1, 0, 0);
+    public static Y    = new Vector3(0, 1, 0);
+    public static Z    = new Vector3(0, 0, 1);
+    public static One  = new Vector3(1, 1, 1);
+    public static Zero = new Vector3(0, 0, 0);
 }

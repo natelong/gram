@@ -62,18 +62,29 @@ class Mesh {
     }
 
     public draw() : void {
-        var graphics = this.graphics;
+        var graphics = this.graphics,
+            p        = graphics.program;
 
         this.identity.identity();
 
-        graphics.setPositionBuffer(this.vertexBuffer, this.stride, this.positionOffset);
-        graphics.setNormalBuffer(this.vertexBuffer, this.stride, this.normalOffset);
-        graphics.setColorBuffer(this.vertexBuffer, this.stride, this.colorOffset);
-        graphics.drawArrays(this.vertexCount,
-                            this.identity.multiply(this.translation)
-                                         .multiply(this.rotation)
-                                         .multiply(this.scaling),
-                            graphics.gl.TRIANGLES);
+        p.setAttribute("aVertexPosition", this.vertexBuffer, 3, this.stride, this.positionOffset);
+        p.setAttribute("aVertexNormal", this.vertexBuffer, 3, this.stride, this.normalOffset);
+        p.setAttribute("aVertexColor", this.vertexBuffer, 4, this.stride, this.colorOffset);
+
+        graphics.drawArrays(
+            this.vertexCount,
+            this.identity.multiply(this.translation)
+                         .multiply(this.rotation)
+                         .multiply(this.scaling),
+            graphics.gl.TRIANGLES
+        );
+
+//        graphics.drawShadowBuffer(
+//            this.vertexCount,
+//            this.identity.multiply(this.translation)
+//                         .multiply(this.rotation)
+//                         .multiply(this.scaling)
+//        );
     }
 
     public rotate(angle : number, axis : Vector3) : void {

@@ -1,41 +1,6 @@
 ///<reference path="WebGL.d.ts" />
 export = Shader;
 
-var defaultFragment = "" +
-    "precision mediump float;" +
-
-    "varying vec4 vColor;" +
-    "varying vec3 vLightWeighting;" +
-
-    "void main(void) {" +
-        "gl_FragColor = vec4(vColor.rgb * vLightWeighting, vColor.a);" +
-    "}";
-
-var defaultVertex = "" +
-    "attribute vec3 aVertexPosition;" +
-    "attribute vec3 aVertexNormal;" +
-    "attribute vec4 aVertexColor;" +
-
-    "uniform mat4 uMVMatrix;" +
-    "uniform mat4 uPMatrix;" +
-    "uniform mat3 uNMatrix;" +
-
-    "uniform vec3 uAmbientColor;" +
-    "uniform vec3 uLightDirection;" +
-    "uniform vec3 uLightColor;" +
-
-    "varying vec3 vLightWeighting;" +
-    "varying vec4 vColor;" +
-
-    "void main(void) {" +
-        "gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);" +
-        "vColor      = aVertexColor;" +
-
-        "vec3 transformedNormal = uNMatrix * aVertexNormal;" +
-        "float lightWeighting   = max(dot(transformedNormal, uLightDirection), 0.0);" +
-        "vLightWeighting        = uAmbientColor + uLightColor * lightWeighting;" +
-    "}";
-
 class Shader {
     public shader  : WebGLShader;
 
@@ -43,12 +8,12 @@ class Shader {
     private source : string;
     private type   : number;
 
-    constructor (gl : WebGLRenderingContext, id? : string) {
+    constructor (gl : WebGLRenderingContext, type : number, source : string) {
         this.gl = gl;
-        if(id) {
-            this.get(id);
-            this.shader = this.compile(this.source, this.type);
-        }
+
+        this.source = source;
+        this.type   = type;
+        this.shader = this.compile();
     }
 
     public get(id : string) : void {
@@ -62,18 +27,17 @@ class Shader {
             type = gl.VERTEX_SHADER;
         } else {
             throw new Error("Shader is not a valid type. Are you missing type attributes?");
-            return;
         }
 
         this.source = shaderScript.textContent;
         this.type   = type;
     }
 
-    public compile(src : string, type : number) : WebGLShader {
+    public compile() : WebGLShader {
         var gl = this.gl,
-            shader = gl.createShader(type);
+            shader = gl.createShader(this.type);
 
-        gl.shaderSource(shader, src);
+        gl.shaderSource(shader, this.source);
         gl.compileShader(shader);
 
         if(!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
@@ -84,17 +48,54 @@ class Shader {
         return shader;
     }
 
-    public static defaultFragment(gl : WebGLRenderingContext) : Shader {
-        var s = new Shader(gl);
+    public static lightFragment = "" +
+        "precision mediump float;" +
 
-        s.shader = s.compile(defaultFragment, gl.FRAGMENT_SHADER);
-        return s;
-    }
+        "void main(){" +
+            "gl_FragColor = vec4(gl_FragCoord.z);" +
+        "}";
 
-    public static defaultVertex(gl : WebGLRenderingContext) : Shader {
-        var s = new Shader(gl);
+    public static lightVertex = "" +
+        "uniform mat4 mvp;" +
 
-        s.shader = s.compile(defaultVertex, gl.VERTEX_SHADER);
-        return s;
-    }
+        "attribute vec3 aVertexPosition;" +
+
+        "void main(){" +
+            "gl_Position = mvp * vec4(aVertexPosition, 1);" +
+        "}";
+
+    public static defaultFragment = "" +
+        "precision mediump float;" +
+
+        "varying vec4 vColor;" +
+        "varying vec3 vLightWeighting;" +
+
+        "void main(void) {" +
+            "gl_FragColor = vec4(vColor.rgb * vLightWeighting, vColor.a);" +
+        "}";
+
+    public static defaultVertex = "" +
+        "attribute vec3 aVertexPosition;" +
+        "attribute vec3 aVertexNormal;" +
+        "attribute vec4 aVertexColor;" +
+
+        "uniform mat4 uMVMatrix;" +
+        "uniform mat4 uPMatrix;" +
+        "uniform mat3 uNMatrix;" +
+
+        "uniform vec3 uAmbientColor;" +
+        "uniform vec3 uLightDirection;" +
+        "uniform vec3 uLightColor;" +
+
+        "varying vec3 vLightWeighting;" +
+        "varying vec4 vColor;" +
+
+        "void main(void) {" +
+            "gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);" +
+            "vColor      = aVertexColor;" +
+
+            "vec3 transformedNormal = uNMatrix * aVertexNormal;" +
+            "float lightWeighting   = max(dot(transformedNormal, uLightDirection), 0.0);" +
+            "vLightWeighting        = uAmbientColor + uLightColor * lightWeighting;" +
+        "}";
 }

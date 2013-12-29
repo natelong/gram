@@ -317,6 +317,120 @@ class Matrix4 {
         return this;
     }
 
+    public orthographic(left : number, right : number, bottom : number, top : number, near : number, far : number) : Matrix4 {
+        var a  = this.array,
+            lr = 1 / (left - right),
+            bt = 1 / (bottom - top),
+            nf = 1 / (near - far);
+
+        a[0] = -2 * lr;
+        a[1] = 0;
+        a[2] = 0;
+        a[3] = 0;
+        a[4] = 0;
+        a[5] = -2 * bt;
+        a[6] = 0;
+        a[7] = 0;
+        a[8] = 0;
+        a[9] = 0;
+        a[10] = 2 * nf;
+        a[11] = 0;
+        a[12] = (left + right) * lr;
+        a[13] = (top + bottom) * bt;
+        a[14] = (far + near) * nf;
+        a[15] = 1;
+
+        return this;
+    }
+
+    public lookAt(eye : Vector3, center : Vector3, up : Vector3) : Matrix4 {
+        var a = this.array,
+            x0 : number,
+            x1 : number,
+            x2 : number,
+            y0 : number,
+            y1 : number,
+            y2 : number,
+            z0 : number,
+            z1 : number,
+            z2 : number,
+            len : number,
+            eyex = eye.x,
+            eyey = eye.y,
+            eyez = eye.z,
+            upx = up.x,
+            upy = up.y,
+            upz = up.z,
+            centerx = center.x,
+            centery = center.y,
+            centerz = center.z;
+
+        if (Math.abs(eyex - centerx) < Matrix4.EPSILON &&
+            Math.abs(eyey - centery) < Matrix4.EPSILON &&
+            Math.abs(eyez - centerz) < Matrix4.EPSILON) {
+            return new Matrix4().identity();
+        }
+
+        z0 = eyex - centerx;
+        z1 = eyey - centery;
+        z2 = eyez - centerz;
+
+        len = 1 / Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
+        z0 *= len;
+        z1 *= len;
+        z2 *= len;
+
+        x0 = upy * z2 - upz * z1;
+        x1 = upz * z0 - upx * z2;
+        x2 = upx * z1 - upy * z0;
+        len = Math.sqrt(x0 * x0 + x1 * x1 + x2 * x2);
+        if (!len) {
+            x0 = 0;
+            x1 = 0;
+            x2 = 0;
+        } else {
+            len = 1 / len;
+            x0 *= len;
+            x1 *= len;
+            x2 *= len;
+        }
+
+        y0 = z1 * x2 - z2 * x1;
+        y1 = z2 * x0 - z0 * x2;
+        y2 = z0 * x1 - z1 * x0;
+
+        len = Math.sqrt(y0 * y0 + y1 * y1 + y2 * y2);
+        if (!len) {
+            y0 = 0;
+            y1 = 0;
+            y2 = 0;
+        } else {
+            len = 1 / len;
+            y0 *= len;
+            y1 *= len;
+            y2 *= len;
+        }
+
+        a[0] = x0;
+        a[1] = y0;
+        a[2] = z0;
+        a[3] = 0;
+        a[4] = x1;
+        a[5] = y1;
+        a[6] = z1;
+        a[7] = 0;
+        a[8] = x2;
+        a[9] = y2;
+        a[10] = z2;
+        a[11] = 0;
+        a[12] = -(x0 * eyex + x1 * eyey + x2 * eyez);
+        a[13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
+        a[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
+        a[15] = 1;
+
+        return this;
+    }
+
 
     public toString() : string {
         var a = this.array;

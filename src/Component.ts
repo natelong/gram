@@ -1,10 +1,13 @@
+import IComponent = require("./IComponent");
+
 export = Component;
 
-class Component {
-    public name   : string;
+class Component implements IComponent{
     public active : boolean;
+    public type   : string;
 
-    constructor(name : string) {
-        this.name = name;
+    constructor(type : string) {
+        this.type   = type;
+        this.active = true;
     }
 }

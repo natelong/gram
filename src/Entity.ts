@@ -1,5 +1,7 @@
-import Utils     = require("./Utils");
-import Component = require("./Component");
+import Utils        = require("./Utils");
+import Component    = require("./Component");
+import IComponent   = require("./IComponent");
+import MeshRenderer = require("./Components/MeshRenderer");
 
 export = Entity;
 
@@ -12,20 +14,18 @@ class Entity {
         this.id = Utils.getId();
     }
 
-    public hasComponent(name : string) : boolean {
-        return !!this.getComponent(name);
-    }
-
-    public addComponent(component : Component) : void {
-        if(this.hasComponent(component.name)) throw new Error("Component \"" + component.name + "\" already exists");
+    public addComponent<T extends IComponent>(component : T) : void {
+        if(this.getComponent<T>(component.type)) {
+            throw new Error("Component \"" + component.type + "\" already exists");
+        }
 
         this.components.push(component);
     }
 
-    public getComponent(name : string) : Component {
+    public getComponent<T extends IComponent>(type : string) : T {
         for (var i = 0; i < this.components.length; i++) {
-            if(this.components[i].name === name) {
-                return this.components[i];
+            if(this.components[i].type === type) {
+                return <T>this.components[i];
             }
         }
 

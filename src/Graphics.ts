@@ -1,9 +1,10 @@
 ///<reference path="WebGL.d.ts" />
-import Matrix3 = require("./Matrix3");
-import Matrix4 = require("./Matrix4");
-import Vector3 = require("./Vector3");
-import Shader  = require("./Shader");
-import Utils   = require("./Utils");
+import Matrix3       = require("./Matrix3");
+import Matrix4       = require("./Matrix4");
+import Vector3       = require("./Vector3");
+import Shader        = require("./Shader");
+import Utils         = require("./Utils");
+import ShaderProgram = require("./ShaderProgram");
 
 export = Graphics;
 
@@ -11,24 +12,16 @@ class Graphics {
     public gl : WebGLRenderingContext;
     public viewportWidth  : number;
     public viewportHeight : number;
-    public shaderProgram  : WebGLProgram;
+    public program        : ShaderProgram;
     public perspective    : Matrix4;
 
-    // TODO: Replace these with something more sane
-    public positionAttribute : number;
-    public colorAttribute    : number;
-    public normalAttribute   : number;
-
-    public pUniform              : WebGLUniformLocation;
-    public mvUniform             : WebGLUniformLocation;
-    public nMatrixUniform        : WebGLUniformLocation;
-    public ambientColorUniform   : WebGLUniformLocation;
-    public lightDirectionUniform : WebGLUniformLocation;
-    public lightColorUniform     : WebGLUniformLocation;
+    // for shadows
+//    public frameBuffer    : WebGLFramebuffer;
+//    public frameTexture   : WebGLTexture;
 
     private matrixStack : Array<Matrix4>;
 
-    constructor(canvas : HTMLCanvasElement, fragmentId? : string, vertexId? : string) {
+    constructor(canvas : HTMLCanvasElement) {
         var gl : WebGLRenderingContext;
 
         try {
@@ -37,14 +30,12 @@ class Graphics {
             this.viewportHeight = canvas.height;
         } catch(e) {}
 
-        if (gl) {
-            this.initShaders(fragmentId, vertexId);
+        if (!gl) throw new Error("Couldn't initialize WebGL");
 
-            gl.clearColor(0, 0, 0, 1);
-            gl.enable(gl.DEPTH_TEST);
-        } else {
-            console.error("Couldn't initialize WebGL");
-        }
+        this.initShaders();
+
+        gl.clearColor(0, 0, 0, 1);
+        gl.enable(gl.DEPTH_TEST);
 
         this.perspective = new Matrix4().perspective(
             Utils.degToRad(45),
@@ -52,6 +43,8 @@ class Graphics {
             0.1,
             100
         );
+
+//        this.initFrameBuffer();
     }
 
     public clear() {
@@ -60,6 +53,7 @@ class Graphics {
         gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
+
     public pushMatrix(matrix : Matrix4) : void {
         this.matrixStack.push(matrix.clone());
     }
@@ -68,112 +62,87 @@ class Graphics {
         return this.matrixStack.pop();
     }
 
-    private initShaders(fragmentId? : string, vertexId? : string) : void {
-        var gl       = this.gl,
-            program  = this.shaderProgram = gl.createProgram();
+    private initShaders(fragment? : Shader, vertex? : Shader) : void {
+        var gl = this.gl,
+            program : ShaderProgram;
 
-        var fragment : Shader;
-        if(fragmentId) {
-            fragment = new Shader(gl, fragmentId);
-        } else {
-            fragment = Shader.defaultFragment(gl);
-        }
+        if(!fragment) fragment = new Shader(gl, gl.FRAGMENT_SHADER, Shader.defaultFragment);
+        if(!vertex) vertex = new Shader(gl, gl.VERTEX_SHADER, Shader.defaultVertex);
 
-        var vertex : Shader;
-        if(vertexId) {
-            vertex = new Shader(gl, vertexId);
-        } else {
-            vertex = Shader.defaultVertex(gl);
-        }
+        program = new ShaderProgram(
+            gl,
+            fragment,
+            vertex, [
+                "uPMatrix",
+                "uMVMatrix",
+                "uNMatrix",
+                "uAmbientColor",
+                "uLightDirection",
+                "uLightColor"
+            ],[
+                "aVertexPosition",
+                "aVertexColor",
+                "aVertexNormal"
+            ]);
 
-        gl.attachShader(program, vertex.shader);
-        gl.attachShader(program, fragment.shader);
-        gl.linkProgram(program);
-
-        if(!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-            console.error("Could not initialize shaders");
-            return;
-        }
-
-        gl.useProgram(program);
-
-        this.pUniform              = gl.getUniformLocation(program, "uPMatrix");
-        this.mvUniform             = gl.getUniformLocation(program, "uMVMatrix");
-        this.nMatrixUniform        = gl.getUniformLocation(program, "uNMatrix");
-        this.ambientColorUniform   = gl.getUniformLocation(program, "uAmbientColor");
-        this.lightDirectionUniform = gl.getUniformLocation(program, "uLightDirection");
-        this.lightColorUniform     = gl.getUniformLocation(program, "uLightColor");
-
-        this.positionAttribute = gl.getAttribLocation(program, "aVertexPosition");
-        gl.enableVertexAttribArray(this.positionAttribute);
-
-        this.colorAttribute = gl.getAttribLocation(program, "aVertexColor");
-        gl.enableVertexAttribArray(this.colorAttribute);
-
-        this.normalAttribute = gl.getAttribLocation(program, "aVertexNormal");
-        gl.enableVertexAttribArray(this.normalAttribute);
+        this.useProgram(program);
     }
 
-    public setMatrixUniforms(pMatrix : Matrix4, mvMatrix : Matrix4) : void {
-        var gl = this.gl;
-
-        gl.uniformMatrix4fv(this.pUniform, false, pMatrix.getArray());
-        gl.uniformMatrix4fv(this.mvUniform, false, mvMatrix.getArray());
-
-        var normalMatrix = new Matrix3().copyFromMatrix4(mvMatrix).invert().transpose();
-        gl.uniformMatrix3fv(this.nMatrixUniform, false, normalMatrix.getArray());
-    }
-
-    public setPositionBuffer(positionBuffer : WebGLBuffer, stride? : number, offset? : number) : void {
-        var gl = this.gl;
-
-        stride = stride || 0;
-        offset = offset || 0;
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.vertexAttribPointer(this.positionAttribute, 3, gl.FLOAT, false, stride, offset);
-    }
-
-    public setColorBuffer(colorBuffer : WebGLBuffer, stride? : number, offset? : number) : void {
-        var gl = this.gl;
-
-        stride = stride || 0;
-        offset = offset || 0;
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-        gl.vertexAttribPointer(this.colorAttribute, 4, gl.FLOAT, false, stride, offset);
-    }
-
-    public setNormalBuffer(normalBuffer : WebGLBuffer, stride? : number, offset? : number) : void {
-        var gl = this.gl;
-
-        stride = stride || 0;
-        offset = offset || 0;
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-        gl.vertexAttribPointer(this.normalAttribute, 3, gl.FLOAT, false, stride, offset);
-    }
-
-    public drawIndices(indexBuffer : WebGLBuffer, indexCount : number, perspective : Matrix4, modelView : Matrix4, mode : number) : void {
-        var gl = this.gl;
-
-        gl.uniform3f(this.ambientColorUniform, 0.2, 0.2, 0.2);
-        gl.uniform3fv(this.lightDirectionUniform, new Vector3(0.25, 0.25, 1).getFloat32Array());
-        gl.uniform3f(this.lightColorUniform, 0.8, 0.8, 0.8);
-
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-        this.setMatrixUniforms(perspective, modelView);
-        gl.drawElements(mode, indexCount, gl.UNSIGNED_SHORT, 0);
+    public useProgram(program : ShaderProgram) : void {
+        if(this.program) this.program.deleteAllAttributes();
+        program.initAllAttributes();
+        program.initAllUniforms();
+        program.use();
+        this.program = program;
     }
 
     public drawArrays(count : number, modelView : Matrix4, mode : number) : void {
-        var gl = this.gl;
+        var gl = this.gl,
+            p  = this.program,
+            n  = new Matrix3().copyFromMatrix4(modelView).invert().transpose().getArray();
 
-        gl.uniform3f(this.ambientColorUniform, 0.2, 0.2, 0.2);
-        gl.uniform3fv(this.lightDirectionUniform, new Vector3(0.25, 0.25, 1).getFloat32Array());
-        gl.uniform3f(this.lightColorUniform, 0.8, 0.8, 0.8);
+        gl.uniform3f(p.uniforms["uAmbientColor"], 0.2, 0.2, 0.2);
+        gl.uniform3fv(p.uniforms["uLightDirection"], new Vector3(0.25, 0.25, 1).getFloat32Array());
+        gl.uniform3f(p.uniforms["uLightColor"], 0.8, 0.8, 0.8);
 
-        this.setMatrixUniforms(this.perspective, modelView);
+        gl.uniformMatrix4fv(p.uniforms["uPMatrix"], false, this.perspective.getArray());
+        gl.uniformMatrix4fv(p.uniforms["uMVMatrix"], false, modelView.getArray());
+        gl.uniformMatrix3fv(p.uniforms["uNMatrix"], false, n);
+
         gl.drawArrays(mode, 0, count);
+    }
+
+//    private initFrameBuffer() : void {
+//        var gl   = this.gl,
+//            size = 512;
+//
+//        this.frameBuffer = gl.createFramebuffer();
+//        gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer);
+//
+//        this.frameTexture = gl.createTexture();
+//        gl.bindTexture(gl.TEXTURE_2D, this.frameTexture);
+//        gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT16, size, size, 0, gl.DEPTH_COMPONENT, gl.FLOAT, null);
+//        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+//        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+//        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+//        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+//
+//        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.frameTexture, 0);
+//
+//        gl.bindTexture(gl.TEXTURE_2D, null);
+//        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+//    }
+
+    public drawShadowBuffer(count : number, modelView : Matrix4) : void {
+        var gl         = this.gl,
+            p          = this.program,
+            projection = new Matrix4().orthographic(-10, 10, -10, 10, -10, 20),
+            view       = new Matrix4().lookAt(new Vector3(-0.25, -0.25, -1), Vector3.Zero, Vector3.Y),
+            model      = modelView,
+            mvp        = projection.multiply(view).multiply(model);
+
+        gl.uniformMatrix4fv(p.uniforms["mvp"], false, mvp.getArray());
+
+        gl.drawArrays(gl.TRIANGLES, 0, count);
     }
 }

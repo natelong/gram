@@ -31,9 +31,13 @@ class Scene {
     }
 
     public draw() : void {
+        this.drawEntities();
+    }
+
+    private drawEntities() : void {
         this.getEntities().forEach(function(e : Entity) {
             e.components.forEach(function(c : Component) {
-                if(c.name === MeshRenderer.name) {
+                if(c.type === MeshRenderer.type) {
                     (<MeshRenderer>c).draw();
                 }
             });
