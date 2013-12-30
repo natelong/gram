@@ -10,6 +10,7 @@ import MeshRenderer = require("./Components/MeshRenderer");
 import Component    = require("./Component");
 
 import Shader = require("./Shader");
+import Shaders = require("./Shaders");
 import ShaderProgram = require("./ShaderProgram");
 
 class TestScene extends Scene {
@@ -24,34 +25,33 @@ class TestScene extends Scene {
     constructor(game : Game) {
         super("Test Scene", game);
 
-//        var vertices = Mesh.fromMap([
-//                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-//                0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-//                0, 1, 1, 2, 1, 0, 0, 0, 1, 0,
-//                0, 1, 0, 1, 0, 0, 0, 0, 1, 0,
-//                0, 1, 0, 0, 1, 0, 0, 0, 1, 0,
-//                0, 1, 0, 1, 2, 1, 0, 0, 1, 0,
-//                0, 1, 2, 3, 2, 2, 1, 0, 1, 0,
-//                0, 1, 1, 2, 1, 0, 0, 0, 1, 0,
-//                0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-//                0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-//            ]);
+        var vertices = Mesh.fromMap([
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+                0, 1, 1, 2, 1, 0, 0, 0, 1, 0,
+                0, 1, 0, 1, 0, 0, 0, 0, 1, 0,
+                0, 1, 0, 0, 1, 0, 0, 0, 1, 0,
+                0, 1, 0, 1, 2, 1, 0, 0, 1, 0,
+                0, 1, 2, 3, 2, 2, 1, 0, 1, 0,
+                0, 1, 1, 2, 1, 0, 0, 0, 1, 0,
+                0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ]);
 
-//        var m = this.terrainMesh = new Mesh(game.graphics, vertices, Color.White);
+        var m = this.terrainMesh = new Mesh(game.graphics, vertices, Color.White);
+        m.rotate(Utils.degToRad(-45), Vector3.X);
+
+//        var m = new Mesh(this.game.graphics, [
+//             1, -1,  0,
+//             0,  1,  0,
+//            -1, -1,  0,
+//
+//             0, -1, -1,
+//             0,  1,  0,
+//             0, -1,  1
+//        ], Color.White);
+
 //        m.translate(new Vector3(0, 0, -10));
-//        m.rotate(Utils.degToRad(-45), Vector3.X);
-
-        var m = new Mesh(this.game.graphics, [
-             1, -1,  0,
-             0,  1,  0,
-            -1, -1,  0,
-
-             0, -1, -1,
-             0,  1,  0,
-             0, -1,  1
-        ], Color.White);
-
-        m.translate(new Vector3(0, 0, -10));
 
         var t = this.terrain = new Entity();
         t.addComponent(new MeshRenderer(m));
@@ -59,9 +59,18 @@ class TestScene extends Scene {
         this.addEntity(t);
 
 //        var gl        = this.game.graphics.gl,
-//            lightFrag = new Shader(gl, gl.FRAGMENT_SHADER, Shader.lightFragment),
-//            lightVert = new Shader(gl, gl.VERTEX_SHADER, Shader.lightVertex),
-//            program   = new ShaderProgram(gl, lightFrag, lightVert, ["mvp"], ["aVertexPosition"]);
+//            lightFrag = new Shader(gl, gl.FRAGMENT_SHADER, Shaders.lightfrag),
+//            lightVert = new Shader(gl, gl.VERTEX_SHADER, Shaders.lightvert),
+//            program   = new ShaderProgram(
+//                gl,
+//                lightFrag,
+//                lightVert,
+//                [
+//                    "uMMatrix",
+//                    "uVMatrix",
+//                    "uPMatrix"
+//                ],["aVertexPosition"]
+//            );
 //
 //        this.game.graphics.useProgram(program);
     }

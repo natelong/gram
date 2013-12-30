@@ -26,9 +26,9 @@ class Game {
             curScene : Scene;
 
         graphics.clear();
+
         if(active && this.hasScene(active)) {
             curScene = this.getScene(active);
-
             curScene.update(thisUpdate - this.lastUpdate);
             curScene.draw();
         }

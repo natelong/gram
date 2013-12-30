@@ -78,7 +78,7 @@ class Mesh {
                          .multiply(this.scaling),
             graphics.gl.TRIANGLES
         );
-
+//
 //        graphics.drawShadowBuffer(
 //            this.vertexCount,
 //            this.identity.multiply(this.translation)

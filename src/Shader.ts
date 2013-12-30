@@ -48,54 +48,37 @@ class Shader {
         return shader;
     }
 
-    public static lightFragment = "" +
-        "precision mediump float;" +
+    public static light2Fragment = [
+        "varying vec3 vWorldNormal;",
+        "varying vec4 vWorldPosition;",
 
-        "void main(){" +
-            "gl_FragColor = vec4(gl_FragCoord.z);" +
-        "}";
+        "uniform mat4 lightProj;",
+        "uniform mat4 lightView;",
+        "uniform mat3 lightRot;",
+        "uniform mat4 model;",
 
-    public static lightVertex = "" +
-        "uniform mat4 mvp;" +
+        "void main(){",
+        "    vec3 worldNormal = normalize(vWorldNormal);",
+        "    vec3 lightPos = (lightView * vWorldPosition).xyz;",
+        "    float depth = clamp(length(lightPos)/40.0, 0.0, 1.0);",
+        "    gl_FragColor = vec4(vec3(depth), 1.0);",
+        "}"].join("\n");
 
-        "attribute vec3 aVertexPosition;" +
+    public static light2Vertex = [
+        "varying vec3 vWorldNormal;",
+        "varying vec4 vWorldPosition;",
 
-        "void main(){" +
-            "gl_Position = mvp * vec4(aVertexPosition, 1);" +
-        "}";
+        "uniform mat4 lightProj;",
+        "uniform mat4 lightView;",
+        "uniform mat3 lightRot;",
+        "uniform mat4 model;",
 
-    public static defaultFragment = "" +
-        "precision mediump float;" +
+        "attribute vec3 position;",
+        "attribute vec3 normal;",
 
-        "varying vec4 vColor;" +
-        "varying vec3 vLightWeighting;" +
-
-        "void main(void) {" +
-            "gl_FragColor = vec4(vColor.rgb * vLightWeighting, vColor.a);" +
-        "}";
-
-    public static defaultVertex = "" +
-        "attribute vec3 aVertexPosition;" +
-        "attribute vec3 aVertexNormal;" +
-        "attribute vec4 aVertexColor;" +
-
-        "uniform mat4 uMVMatrix;" +
-        "uniform mat4 uPMatrix;" +
-        "uniform mat3 uNMatrix;" +
-
-        "uniform vec3 uAmbientColor;" +
-        "uniform vec3 uLightDirection;" +
-        "uniform vec3 uLightColor;" +
-
-        "varying vec3 vLightWeighting;" +
-        "varying vec4 vColor;" +
-
-        "void main(void) {" +
-            "gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);" +
-            "vColor      = aVertexColor;" +
-
-            "vec3 transformedNormal = uNMatrix * aVertexNormal;" +
-            "float lightWeighting   = max(dot(transformedNormal, uLightDirection), 0.0);" +
-            "vLightWeighting        = uAmbientColor + uLightColor * lightWeighting;" +
-        "}";
+        "void main(){",
+        "    vWorldNormal = normal;",
+        "    vWorldPosition = model * vec4(position, 1.0);",
+        "    gl_Position = lightProj * lightView * vWorldPosition;",
+        "}"].join("\n");
 }
