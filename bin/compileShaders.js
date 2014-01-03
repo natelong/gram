@@ -8,7 +8,7 @@ var fs      = require("fs"),
     shaders = {};
 
 fs.readdirSync(search).forEach(function(file) {
-    var contents  = fs.readFileSync(search + path.sep + file,{encoding : "utf8"});
+    var contents  = fs.readFileSync(search + path.sep + file, {encoding : "utf8"});
     var shortName = file.replace(".", "");
 
     output += "    public static " + shortName + " = " + JSON.stringify(contents) + ";\n";

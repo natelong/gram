@@ -1,8 +1,9 @@
 ///<reference path="WebGL.d.ts" />
-import Matrix4  = require("./Matrix4");
-import Vector3  = require("./Vector3");
-import Graphics = require("./Graphics");
-import Color    = require("./Color");
+import Matrix4       = require("./Matrix4");
+import Vector3       = require("./Vector3");
+import Graphics      = require("./Graphics");
+import Color         = require("./Color");
+import ShaderProgram = require("./ShaderProgram");
 
 export = Mesh;
 
@@ -63,10 +64,28 @@ class Mesh {
 
     public draw() : void {
         var graphics = this.graphics,
-            p        = graphics.program;
+            gl       = graphics.gl,
+            p : ShaderProgram;
 
         this.identity.identity();
 
+        gl.bindFramebuffer(gl.FRAMEBUFFER, graphics.shadowFrameBuffer);
+
+        graphics.useProgram(graphics.shadowProgram);
+        p = graphics.currentProgram;
+        p.setAttribute("aVertexPosition", this.vertexBuffer, 3, this.stride, this.positionOffset);
+
+        graphics.drawShadowBuffer(
+            this.vertexCount,
+            this.identity.multiply(this.translation)
+                .multiply(this.rotation)
+                .multiply(this.scaling)
+        );
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        graphics.useProgram(graphics.defaultProgram);
+        p = graphics.currentProgram;
         p.setAttribute("aVertexPosition", this.vertexBuffer, 3, this.stride, this.positionOffset);
         p.setAttribute("aVertexNormal", this.vertexBuffer, 3, this.stride, this.normalOffset);
         p.setAttribute("aVertexColor", this.vertexBuffer, 4, this.stride, this.colorOffset);
@@ -78,13 +97,6 @@ class Mesh {
                          .multiply(this.scaling),
             graphics.gl.TRIANGLES
         );
-//
-//        graphics.drawShadowBuffer(
-//            this.vertexCount,
-//            this.identity.multiply(this.translation)
-//                         .multiply(this.rotation)
-//                         .multiply(this.scaling)
-//        );
     }
 
     public rotate(angle : number, axis : Vector3) : void {

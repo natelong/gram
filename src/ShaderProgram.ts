@@ -34,10 +34,7 @@ class ShaderProgram {
         gl.attachShader(program, fragment.shader);
         gl.linkProgram(program);
 
-        if(!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-            console.error("Could not initialize shaders");
-            return;
-        }
+        if(!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error("Could not initialize shaders");
     }
 
     public use() : void {
@@ -45,7 +42,10 @@ class ShaderProgram {
     }
 
     public initUniform(name : string) : void {
-        this.uniforms[name] = this.gl.getUniformLocation(this.program, name);
+        var uniform = this.gl.getUniformLocation(this.program, name);
+        if(!uniform) throw new Error("Couldn't get uniform: " + name);
+
+        this.uniforms[name] = uniform;
     }
 
     public initUniforms(names : Array<string>) : void {
@@ -57,7 +57,10 @@ class ShaderProgram {
     }
 
     public initAttribute(name : string) : void {
-        this.attributes[name] = this.gl.getAttribLocation(this.program, name);
+        var attribute = this.gl.getAttribLocation(this.program, name);
+        if(!attribute) throw new Error("Couldn't initialize attribute: " + name);
+
+        this.attributes[name] = attribute;
         this.gl.enableVertexAttribArray(this.attributes[name]);
     }
 

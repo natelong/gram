@@ -431,6 +431,27 @@ class Matrix4 {
         return this;
     }
 
+    public bias() : Matrix4 {
+        this.array[0] = 0.5;
+        this.array[0] = 0.0;
+        this.array[0] = 0.0;
+        this.array[0] = 0.0;
+        this.array[0] = 0.0;
+        this.array[0] = 0.5;
+        this.array[0] = 0.0;
+        this.array[0] = 0.0;
+        this.array[0] = 0.0;
+        this.array[0] = 0.0;
+        this.array[0] = 0.5;
+        this.array[0] = 0.0;
+        this.array[0] = 0.5;
+        this.array[0] = 0.5;
+        this.array[0] = 0.5;
+        this.array[0] = 1.0;
+
+        return this;
+    }
+
 
     public toString() : string {
         var a = this.array;
