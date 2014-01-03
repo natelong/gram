@@ -57,10 +57,7 @@ class ShaderProgram {
     }
 
     public initAttribute(name : string) : void {
-        var attribute = this.gl.getAttribLocation(this.program, name);
-        if(!attribute) throw new Error("Couldn't initialize attribute: " + name);
-
-        this.attributes[name] = attribute;
+        this.attributes[name] = this.gl.getAttribLocation(this.program, name);
         this.gl.enableVertexAttribArray(this.attributes[name]);
     }
 

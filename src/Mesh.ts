@@ -69,21 +69,6 @@ class Mesh {
 
         this.identity.identity();
 
-        gl.bindFramebuffer(gl.FRAMEBUFFER, graphics.shadowFrameBuffer);
-
-        graphics.useProgram(graphics.shadowProgram);
-        p = graphics.currentProgram;
-        p.setAttribute("aVertexPosition", this.vertexBuffer, 3, this.stride, this.positionOffset);
-
-        graphics.drawShadowBuffer(
-            this.vertexCount,
-            this.identity.multiply(this.translation)
-                .multiply(this.rotation)
-                .multiply(this.scaling)
-        );
-
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
         graphics.useProgram(graphics.defaultProgram);
         p = graphics.currentProgram;
         p.setAttribute("aVertexPosition", this.vertexBuffer, 3, this.stride, this.positionOffset);
@@ -130,5 +115,37 @@ class Mesh {
         }
 
         return out;
+    }
+
+    public static Cube(graphics : Graphics, color : Color) : Mesh {
+        var ftl = [-1,  1, -1],
+            ftr = [ 1,  1, -1],
+            fbl = [-1, -1, -1],
+            fbr = [ 1, -1, -1],
+            btl = [-1,  1,  1],
+            btr = [ 1,  1,  1],
+            bbl = [-1, -1,  1],
+            bbr = [ 1, -1,  1],
+            arr = (<Array<number>>[]).concat(
+                fbl, ftl, ftr,
+                fbl, ftr, fbr,
+
+                bbl, btl, ftl,
+                bbl, ftl, fbl,
+
+                bbr, btr, btl,
+                bbr, btl, bbl,
+
+                fbr, ftr, btr,
+                fbr, btr, bbr,
+
+                ftl, btl, btr,
+                ftl, btr, ftr,
+
+                bbl, fbl, fbr,
+                bbl, fbr, bbr
+            );
+
+        return new Mesh(graphics, arr, color);
     }
 }

@@ -25,21 +25,22 @@ class TestScene extends Scene {
     constructor(game : Game) {
         super("Test Scene", game);
 
-        var vertices = Mesh.fromMap([
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-                0, 1, 1, 2, 1, 0, 0, 0, 1, 0,
-                0, 1, 0, 1, 0, 0, 0, 0, 1, 0,
-                0, 1, 0, 0, 1, 0, 0, 0, 1, 0,
-                0, 1, 0, 1, 2, 1, 0, 0, 1, 0,
-                0, 1, 2, 3, 2, 2, 1, 0, 1, 0,
-                0, 1, 1, 2, 1, 0, 0, 0, 1, 0,
-                0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            ]);
+//        var vertices = Mesh.fromMap([
+//                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+//                0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+//                0, 1, 1, 2, 1, 0, 0, 0, 1, 0,
+//                0, 1, 0, 1, 0, 0, 0, 0, 1, 0,
+//                0, 1, 0, 0, 1, 0, 0, 0, 1, 0,
+//                0, 1, 0, 1, 2, 1, 0, 0, 1, 0,
+//                0, 1, 2, 3, 2, 2, 1, 0, 1, 0,
+//                0, 1, 1, 2, 1, 0, 0, 0, 1, 0,
+//                0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+//                0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+//            ]);
 
-        var m = this.terrainMesh = new Mesh(game.graphics, vertices, Color.White);
-        m.rotate(Utils.degToRad(-45), Vector3.X);
+//        var m = this.terrainMesh = new Mesh(game.graphics, vertices, Color.White);
+        var m = Mesh.Cube(game.graphics, Color.White);
+//        m.rotate(Utils.degToRad(-45), Vector3.X);
 
         var t = this.terrain = new Entity();
         t.addComponent(new MeshRenderer(m));
@@ -48,9 +49,9 @@ class TestScene extends Scene {
     }
 
     public update(delta : number) : void {
-        var rotation = Utils.degToRad((25 * delta) / 1000.0);
+        var rotation = Utils.degToRad((50 * delta) / 1000.0);
 
-        this.terrain.getComponent<MeshRenderer>(MeshRenderer.type).mesh.rotate(rotation, Vector3.Z);
+        this.terrain.getComponent<MeshRenderer>(MeshRenderer.type).mesh.rotate(rotation, Vector3.One);
     }
 }
 
