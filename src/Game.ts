@@ -1,12 +1,14 @@
-import Graphics = require("./Graphics");
-import Scene    = require("./Scene");
+import Graphics     = require("./Graphics");
+import Scene        = require("./Scene");
+import InputManager = require("./InputManager");
 
 export = Game;
 
 class Game {
     public graphics    : Graphics;
-    public scenes      : Array<Scene>;
+    public scenes      : Scene[];
     public activeScene : string;
+    public input       : InputManager;
 
     private lastUpdate : number;
 
@@ -15,6 +17,8 @@ class Game {
         this.lastUpdate = Date.now();
         this.scenes = [];
         this.activeScene = "";
+
+        this.input = new InputManager(256);
 
         this.loop();
     }
@@ -25,13 +29,14 @@ class Game {
             thisUpdate = Date.now(),
             curScene : Scene;
 
-        graphics.clear();
-
         if(active && this.hasScene(active)) {
             curScene = this.getScene(active);
-            curScene.update(thisUpdate - this.lastUpdate);
+            curScene.update((thisUpdate - this.lastUpdate) / 1000);
+            graphics.clear();
             curScene.draw();
         }
+
+        this.input.update();
 
         this.lastUpdate = thisUpdate;
         requestAnimationFrame(this.loop.bind(this));
