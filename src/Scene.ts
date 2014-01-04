@@ -4,6 +4,7 @@ import Matrix4      = require("./Matrix4");
 import Entity       = require("./Entity");
 import Component    = require("./Component");
 import MeshRenderer = require("./Components/MeshRenderer");
+import IRenderableComponent = require("./IRenderableComponent");
 
 export = Scene;
 
@@ -13,7 +14,7 @@ class Scene {
     public modelView   : Matrix4;
     public perspective : Matrix4;
 
-    private entities : Array<Entity>;
+    private entities : Entity[];
 
     constructor(name : string, game : Game) {
         this.name = name;
@@ -26,7 +27,9 @@ class Scene {
 
     public update(delta : number) : void {
         this.getEntities().forEach(function(e : Entity) {
-            e.components.forEach(function(c : Component) {});
+            e.components.forEach(function(c : Component) {
+                c.update(delta);
+            });
         });
     }
 
@@ -37,9 +40,7 @@ class Scene {
     private drawEntities() : void {
         this.getEntities().forEach(function(e : Entity) {
             e.components.forEach(function(c : Component) {
-                if(c.type === MeshRenderer.type) {
-                    (<MeshRenderer>c).draw();
-                }
+                if("draw" in c) (<IRenderableComponent>c).draw();
             });
         });
     }
@@ -48,7 +49,7 @@ class Scene {
         this.entities.push(entity);
     }
 
-    public getEntities() : Array<Entity> {
+    public getEntities() : Entity[] {
         return this.entities;
     }
 }
