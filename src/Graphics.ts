@@ -6,6 +6,8 @@ import Shader        = require("./Shader");
 import Utils         = require("./Utils");
 import ShaderProgram = require("./ShaderProgram");
 import Shaders       = require("./Shaders");
+import Color         = require("./Color");
+import Camera        = require("./Camera");
 
 export = Graphics;
 
@@ -17,9 +19,9 @@ class Graphics {
     public defaultProgram : ShaderProgram;
     public shadowProgram  : ShaderProgram;
     public perspective    : Matrix4;
-    public view           : Matrix4;
+    public camera         : Camera;
 
-    private matrixStack : Array<Matrix4>;
+    private matrixStack : Matrix4[];
 
     constructor(canvas : HTMLCanvasElement) {
         var gl : WebGLRenderingContext;
@@ -44,11 +46,11 @@ class Graphics {
             100
         );
 
-        this.view = new Matrix4().lookAt(
-            new Vector3(0, 5, 10),
-            Vector3.Zero,
-            Vector3.Y
-        );
+        this.camera = new Camera(new Vector3(0, 10, 10), Vector3.Zero);
+    }
+
+    public setColor(color : Color) : void {
+        this.gl.clearColor(color.r, color.g, color.b, color.a);
     }
 
     public clear() {
@@ -110,7 +112,7 @@ class Graphics {
         gl.uniform3f(p.uniforms["uLightColor"], 0.85, 0.85, 0.8);
 
         gl.uniformMatrix4fv(p.uniforms["uMMatrix"], false, model.getArray());
-        gl.uniformMatrix4fv(p.uniforms["uVMatrix"], false, this.view.getArray());
+        gl.uniformMatrix4fv(p.uniforms["uVMatrix"], false, this.camera.view.getArray());
         gl.uniformMatrix4fv(p.uniforms["uPMatrix"], false, this.perspective.getArray());
         gl.uniformMatrix3fv(p.uniforms["uNMatrix"], false, n);
 
