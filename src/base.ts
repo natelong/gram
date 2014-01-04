@@ -8,6 +8,10 @@ import Color        = require("./Color");
 import Entity       = require("./Entity");
 import MeshRenderer = require("./Components/MeshRenderer");
 import Component    = require("./Component");
+import InputManager = require("./InputManager");
+
+import LineManager  = require("./LineManager");
+import Line         = require("./Line");
 
 import Shader = require("./Shader");
 import Shaders = require("./Shaders");
@@ -22,8 +26,15 @@ class TestScene extends Scene {
     private terrain     : Entity;
     private terrainMesh : Mesh;
 
+    private width  = 10;
+    private height = 10;
+    private size   = 1;
+    private lineman : LineManager;
+
     constructor(game : Game) {
         super("Test Scene", game);
+
+        game.graphics.setColor(Color.White);
 
 //        var vertices = Mesh.fromMap([
 //                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -39,19 +50,60 @@ class TestScene extends Scene {
 //            ]);
 
 //        var m = this.terrainMesh = new Mesh(game.graphics, vertices, Color.White);
-        var m = Mesh.Cube(game.graphics, Color.White);
+//        var m = Mesh.Cube(game.graphics, Color.Gray);
 //        m.rotate(Utils.degToRad(-45), Vector3.X);
 
         var t = this.terrain = new Entity();
-        t.addComponent(new MeshRenderer(m));
-
+//        t.addComponent(new MeshRenderer(m));
         this.addEntity(t);
+
+        var s = this.size;
+        this.lineman = new LineManager(game.graphics);
+        for(var y = 0; y < this.height; y++) {
+            for(var x = 0; x < this.width; x++) {
+                var xo = x * s,
+                    yo = y * (s * 0.75);
+
+                if(y % 2 !== 0) xo += s/2;
+
+                this.lineman.add(Line.fromLoop([
+                    new Vector3(xo,     0, yo-s/2),
+                    new Vector3(xo+s/2, 0, yo-s/4),
+                    new Vector3(xo+s/2, 0, yo+s/4),
+                    new Vector3(xo,     0, yo+s/2),
+                    new Vector3(xo-s/2, 0, yo+s/4),
+                    new Vector3(xo-s/2, 0, yo-s/4)
+                ], Color.Gray));
+            }
+        }
+
+        t.addComponent(this.lineman);
     }
 
     public update(delta : number) : void {
-        var rotation = Utils.degToRad((50 * delta) / 1000.0);
+        super.update(delta);
 
-        this.terrain.getComponent<MeshRenderer>(MeshRenderer.type).mesh.rotate(rotation, Vector3.One);
+        var rotation    = Utils.degToRad((50 * delta) / 1000.0),
+            g           = this.game.graphics,
+            mov         = g.camera.speed * delta;
+
+//            this.terrain.getComponent<MeshRenderer>(MeshRenderer.type).mesh.rotate(rotation, Vector3.One);
+
+        if(game.input.isDown(InputManager.keys.LEFT)) {
+            g.camera.translate(new Vector3(-mov, 0, 0));
+        }
+
+        if(game.input.isDown(InputManager.keys.RIGHT)) {
+            g.camera.translate(new Vector3(mov, 0, 0));
+        }
+
+        if(game.input.isDown(InputManager.keys.UP)) {
+            g.camera.translate(new Vector3(0, 0, -mov));
+        }
+
+        if(game.input.isDown(InputManager.keys.DOWN)) {
+            g.camera.translate(new Vector3(0, 0, mov));
+        }
     }
 }
 
