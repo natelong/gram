@@ -8,11 +8,12 @@ var fs      = require("fs"),
     shaders = {};
 
 fs.readdirSync(search).forEach(function(file) {
-    var contents  = fs.readFileSync(search + path.sep + file, {encoding : "utf8"});
-    var shortName = file.replace(".", "");
+    var contents  = fs.readFileSync(search + path.sep + file, {encoding : "utf8"}),
+        shortName = file.replace(".", "");
 
     output += "    public static " + shortName + " = " + JSON.stringify(contents) + ";\n";
 });
 
 output += "}";
+
 fs.writeFileSync(out, output);
