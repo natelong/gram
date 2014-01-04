@@ -22,7 +22,7 @@ class Mesh {
     private colorOffset    = 12;
     private normalOffset   = 28;
 
-    constructor(graphics : Graphics, vertices : Array<number>, color : Color) {
+    constructor(graphics : Graphics, vertices : number[], color : Color) {
         var gl = graphics.gl;
 
         this.graphics = graphics;
@@ -32,7 +32,7 @@ class Mesh {
         this.scaling     = new Matrix4().identity();
         this.identity    = new Matrix4().identity();
 
-        var newVertices = <Array<number>>[];
+        var newVertices = <number[]>[];
 
         for(var i = 0; i < vertices.length; i += 9) {
             var v    = vertices,
@@ -96,8 +96,8 @@ class Mesh {
         this.scaling.scale(amount);
     }
 
-    public static fromMap(map : Array<number>) : Array<number> {
-        var out  = <Array<number>>[],
+    public static fromMap(map : number[]) : number[] {
+        var out  = <number[]>[],
             size = Math.sqrt(map.length),
             o    = size / 2;
 
@@ -126,7 +126,7 @@ class Mesh {
             btr = [ 1,  1,  1],
             bbl = [-1, -1,  1],
             bbr = [ 1, -1,  1],
-            arr = (<Array<number>>[]).concat(
+            arr = (<number[]>[]).concat(
                 fbl, ftl, ftr,
                 fbl, ftr, fbr,
 

@@ -11,7 +11,7 @@ class Vector3 {
         this.z = z || 0;
     }
 
-    public getArray() : Array<number> {
+    public getArray() : number[] {
         return [this.x, this.y, this.z];
     }
 

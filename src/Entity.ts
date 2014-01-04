@@ -6,7 +6,7 @@ import MeshRenderer = require("./Components/MeshRenderer");
 export = Entity;
 
 class Entity {
-    public components : Array<Component>;
+    public components : Component[];
     public id : number;
 
     constructor() {

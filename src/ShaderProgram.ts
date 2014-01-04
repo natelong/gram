@@ -12,12 +12,12 @@ class ShaderProgram {
     public uniforms   : Map<string, WebGLUniformLocation>;
     public attributes : Map<string, number>;
 
-    public uniformNames   : Array<string>;
-    public attributeNames : Array<string>;
+    public uniformNames   : string[];
+    public attributeNames : string[];
 
     private gl : WebGLRenderingContext;
 
-    constructor (gl : WebGLRenderingContext, fragment : Shader, vertex : Shader, uniforms : Array<string>, attributes : Array<string>) {
+    constructor (gl : WebGLRenderingContext, fragment : Shader, vertex : Shader, uniforms : string[], attributes : string[]) {
         var program = this.program = gl.createProgram();
 
         this.gl         = gl;
@@ -48,7 +48,7 @@ class ShaderProgram {
         this.uniforms[name] = uniform;
     }
 
-    public initUniforms(names : Array<string>) : void {
+    public initUniforms(names : string[]) : void {
         names.forEach(this.initUniform.bind(this));
     }
 
@@ -61,7 +61,7 @@ class ShaderProgram {
         this.gl.enableVertexAttribArray(this.attributes[name]);
     }
 
-    public initAttributes(names : Array<string>) : void {
+    public initAttributes(names : string[]) : void {
         names.forEach(this.initAttribute.bind(this));
     }
 
@@ -83,7 +83,7 @@ class ShaderProgram {
         this.gl.disableVertexAttribArray(this.attributes[name]);
     }
 
-    public deleteAttributes(names : Array<string>) : void {
+    public deleteAttributes(names : string[]) : void {
         names.forEach(this.deleteAttribute.bind(this));
     }
 
