@@ -10,4 +10,6 @@ class Component implements IComponent{
         this.type   = type;
         this.active = true;
     }
+
+    public update(delta : number) : void {}
 }
