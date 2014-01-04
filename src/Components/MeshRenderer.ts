@@ -1,10 +1,11 @@
 import Component = require("../Component");
 import Mesh      = require("../Mesh");
 import Graphics  = require("../Graphics");
+import IRenderableComponent = require("../IRenderableComponent");
 
 export = MeshRenderer;
 
-class MeshRenderer extends Component{
+class MeshRenderer extends Component implements IRenderableComponent{
     public mesh : Mesh;
     public type : string;
 
