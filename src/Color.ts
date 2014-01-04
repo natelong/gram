@@ -13,10 +13,14 @@ class Color {
         this.a = a;
     }
 
-    public getArray() : Array<number> {
+    public getArray() : number[] {
         return [this.r, this.g, this.b, this.a];
     }
 
+    public static Black = new Color(0, 0, 0, 1);
+    public static Gray  = new Color(0.5, 0.5, 0.5, 1);
     public static White = new Color(1, 1, 1, 1);
     public static Blue  = new Color(0, 0, 1, 1);
+    public static Green = new Color(0, 1, 0, 1);
+    public static Red   = new Color(1, 0, 0, 1);
 }
