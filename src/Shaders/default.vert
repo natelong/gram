@@ -19,7 +19,11 @@ void main(void) {
     gl_Position = uPMatrix * uVMatrix * uMMatrix * v;
     vColor      = aVertexColor;
 
-    vec3 transformedNormal = normalize(uNMatrix * aVertexNormal);
-    float lightWeighting   = max(dot(transformedNormal, uLightDirection), 0.0);
-    vLightWeighting        = uAmbientColor + uLightColor * lightWeighting;
+    if(aVertexNormal.x == 0.0 && aVertexNormal.y == 0.0 && aVertexNormal.z == 0.0) {
+        vLightWeighting = vec3(1.0);
+    } else {
+        vec3 transformedNormal = normalize(uNMatrix * aVertexNormal);
+        float lightWeighting   = max(dot(transformedNormal, uLightDirection), 0.0);
+        vLightWeighting        = uAmbientColor + uLightColor * lightWeighting;
+    }
 }
